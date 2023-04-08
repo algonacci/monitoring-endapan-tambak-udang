@@ -1,32 +1,24 @@
 import os
 
-import Converter
 import cv2
+import Converter
 import pandas as pd
-from absl import app, flags, logging
-from absl.flags import FLAGS
-
-flags.DEFINE_string('image', None, 'path to image file')
-flags.DEFINE_string('folder', None, 'path to folder')
 
 
-def image_processing(image):
-    global df_rgb, df_firstOrder, df_secondOrder
-    img = cv2.imread(image)
+def image_processing(image_path):
+    img = cv2.imread(image_path)
     img_color = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
     img_gray = cv2.cvtColor(img.copy(), cv2.COLOR_RGB2GRAY)
-
     print("Getting all the information....")
     first_order = Converter.get_first_orde(img_gray)
     second_order = Converter.second_order(img_gray)
     rgb = Converter.get_RGB(img_color)
-
-    data_rgb = {"FileName": image,
+    data_rgb = {"FileName": image_path,
                 'Red': rgb[0],
                 'Green': rgb[1],
                 'Blue': rgb[2],
                 }
-    data_first_order = {"FileName": image,
+    data_first_order = {"FileName": image_path,
                         'Mean': first_order[0],
                         'Median': int(first_order[1]),
                         'Max': int(first_order[2]),
@@ -38,7 +30,7 @@ def image_processing(image):
                         'Entropy': first_order[8],
                         'Contrast': int(first_order[9]),
                         }
-    data_second_order = {"FileName": image,
+    data_second_order = {"FileName": image_path,
                          'ASM 0': round(second_order[0][0][0], 5),
                          'ASM 45': round(second_order[0][0][1], 5),
                          'ASM 90': round(second_order[0][0][2], 5),
@@ -63,17 +55,4 @@ def image_processing(image):
     df_rgb = pd.DataFrame(data=[data_rgb])
     df_firstOrder = pd.DataFrame(data=[data_first_order])
     df_secondOrder = pd.DataFrame(data=[data_second_order])
-
-    # list of dataframes and file names
-    dfs = [df_rgb, df_firstOrder, df_secondOrder]
-    filenames = ['rgb.csv', 'first_order.csv', 'second_order.csv']
-
-    for i in range(len(dfs)):
-        df = dfs[i]
-        filename = filenames[i]
-        file_path = "static/result/" + filename
-        df.to_csv(file_path, index=False)
-
     print("Success")
-
-    return filenames

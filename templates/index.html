@@ -41,7 +41,21 @@
           <h2>Input Gambar</h2>
           <form action="/" method="post" enctype="multipart/form-data">
             <div class="form-group">
-              <label for="photo">Choose a photo:</label>
+              <input
+                type="number"
+                class="form-control"
+                name="pakan"
+                placeholder="Masukkan Pakan"
+              />
+              <br />
+              <input
+                type="number"
+                class="form-control"
+                name="usia"
+                placeholder="Masukkan Usia Dalam Hari"
+              />
+              <br />
+              <label for="photo">Pilih Gambar:</label>
               <input
                 type="file"
                 name="image"
@@ -58,7 +72,7 @@
                 <input
                   class="btn btn-primary mt-3"
                   type="submit"
-                  value="Predict!"
+                  value="Prediksi!"
                   id="submitLandmarkDetection"
                 />
               </div>

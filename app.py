@@ -23,8 +23,7 @@ def index():
         if image and allowed_file(image.filename):
             filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            image_path = Image.open(image)
-            image_path = image_path.convert('RGB')
+            image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             result = md.image_processing(image_path)
             print(result)
             return render_template("index.html")
