@@ -34,20 +34,15 @@ def index():
             filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            result = md.image_processing(image_path)
+            md.image_processing(image_path)
             df1 = pd.read_csv('static/result/rgb.csv')
             df2 = pd.read_csv('static/result/first_order.csv')
             df3 = pd.read_csv('static/result/second_order.csv')
             df = pd.concat([df1, df2, df3], axis=1)
             df.insert(0, "Pakan", pakan)
             df.insert(1, "Usia", usia)
-            print(df)
             df = pd.DataFrame(minmax_scale(df), columns=df.columns)
-            # print(result)
             label = knn_model.predict(df)
-            print("====================")
-            print(label)
-
             # Calculate shift_pond based on usia and predicted class
             if usia <= 30:
                 shift_pond = 30 - usia

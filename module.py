@@ -16,7 +16,6 @@ def image_processing(image):
     img_color = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
     img_gray = cv2.cvtColor(img.copy(), cv2.COLOR_RGB2GRAY)
 
-    print("Getting all the information....")
     first_order = Converter.get_first_orde(img_gray)
     second_order = Converter.second_order(img_gray)
     rgb = Converter.get_RGB(img_color)
@@ -73,7 +72,4 @@ def image_processing(image):
         filename = filenames[i]
         file_path = "static/result/" + filename
         df.to_csv(file_path, index=False)
-
-    print("Success")
-
     return filenames
