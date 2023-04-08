@@ -46,6 +46,7 @@
                 class="form-control"
                 name="pakan"
                 placeholder="Masukkan Pakan"
+                required
               />
               <br />
               <input
@@ -53,6 +54,7 @@
                 class="form-control"
                 name="usia"
                 placeholder="Masukkan Usia Dalam Hari"
+                required
               />
               <br />
               <label for="photo">Pilih Gambar:</label>
@@ -73,7 +75,6 @@
                   class="btn btn-primary mt-3"
                   type="submit"
                   value="Prediksi!"
-                  id="submitLandmarkDetection"
                 />
               </div>
             </div>
@@ -86,7 +87,11 @@
               <div class="card mb-3">
                 <div class="card-body text-center">
                   <p class="card-text">Hasil Klasifikasi</p>
-                  <h5 class="card-title">Kelas: 5</h5>
+                  {% if result %}
+                  <h5 class="card-title">Kelas: {{ result }}</h5>
+                  {% else %}
+                  <h5 class="card-title"></h5>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -94,7 +99,14 @@
               <div class="card mb-3">
                 <div class="card-body text-center">
                   <p class="card-text">Waktu untuk membersihkan pond site</p>
-                  <h5 class="card-title">5 Hari</h5>
+                  {% if shift_pond is not none %}
+                  <h5 class="card-title">
+                    {{ shift_pond }} Hari {% if shift_date %} <br />
+                    ({{ shift_date.strftime("%d %B %Y")}}) {% endif %}
+                  </h5>
+                  {% else %}
+                  <h5 class="card-title"></h5>
+                  {% endif %}
                 </div>
               </div>
             </div>
