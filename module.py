@@ -1,10 +1,11 @@
-import os
+import datetime
 
-import Converter
 import cv2
 import pandas as pd
-from absl import app, flags, logging
+from absl import flags
 from absl.flags import FLAGS
+
+import Converter
 
 flags.DEFINE_string('image', None, 'path to image file')
 flags.DEFINE_string('folder', None, 'path to folder')
@@ -67,9 +68,19 @@ def image_processing(image):
     dfs = [df_rgb, df_firstOrder, df_secondOrder]
     filenames = ['rgb.csv', 'first_order.csv', 'second_order.csv']
 
+    # Get current timestamp
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     for i in range(len(dfs)):
         df = dfs[i]
         filename = filenames[i]
         file_path = "static/result/" + filename
         df.to_csv(file_path, index=False)
+
+    for i in range(len(dfs)):
+        df = dfs[i]
+        filename = timestamp + "_" + filenames[i]
+        file_path = "static/result/" + filename
+        df.to_csv(file_path, index=False)
+
     return filenames

@@ -86,9 +86,10 @@
             <div class="col-md-12">
               <div class="card mb-3">
                 <div class="card-body text-center">
-                  <p class="card-text">Status Endapan</p>
+                  <p class="card-text">Status</p>
                   {% if result %}
-                  <h5 class="card-title">Kelas: {{ result }}</h5>
+                  <h5 class="card-title">Kelas: {{ label }}</h5>
+                  <h6>{{ result }}</h6>
                   {% else %}
                   <h5 class="card-title"></h5>
                   {% endif %}

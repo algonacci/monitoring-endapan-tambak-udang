@@ -43,6 +43,12 @@ def index():
             df.insert(1, "Usia", usia)
             df = pd.DataFrame(minmax_scale(df), columns=df.columns)
             label = knn_model.predict(df)
+            label_map = {
+                1: "Tidak ada endapan",
+                2: "Sedikit endapan",
+                3: "Banyak endapan"
+            }
+            label_text = label_map.get(label[0], "unknown")
             # Calculate shift_pond based on usia and predicted class
             if usia <= 30:
                 shift_pond = 30 - usia
@@ -60,7 +66,7 @@ def index():
                 shift_pond = None
                 shift_date = None
 
-            return render_template("index.html", result=label, usia=usia, shift_pond=shift_pond, shift_date=shift_date)
+            return render_template("index.html", result=label_text, label=label, usia=usia, shift_pond=shift_pond, shift_date=shift_date)
         else:
             return render_template("index.html", error="Silahkan upload gambar dengan format JPG")
     else:
