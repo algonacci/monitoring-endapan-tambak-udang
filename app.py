@@ -24,8 +24,13 @@ with open(app.config['MODEL_FILE'], 'rb') as file:
     knn_model = pickle.load(file)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
+    return render_template("index.html")
+
+
+@app.route("/prediction", methods=["GET", "POST"])
+def prediction():
     if request.method == "POST":
         image = request.files["image"]
         pakan = request.form["pakan"]
@@ -65,11 +70,11 @@ def index():
             else:
                 shift_pond = None
                 shift_date = None
-            return render_template("index.html", result=label_text, label=label, usia=usia, shift_pond=shift_pond, shift_date=shift_date)
+            return render_template("prediction.html", result=label_text, label=label, shift_pond=shift_pond, shift_date=shift_date)
         else:
-            return render_template("index.html", error="Silahkan upload gambar dengan format JPG")
+            return render_template("prediction.html", error="Silahkan upload gambar dengan format JPG")
     else:
-        return render_template("index.html")
+        return render_template("prediction.html")
 
 
 if __name__ == "__main__":
