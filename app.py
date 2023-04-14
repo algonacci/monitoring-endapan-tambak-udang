@@ -65,7 +65,6 @@ def index():
             else:
                 shift_pond = None
                 shift_date = None
-
             return render_template("index.html", result=label_text, label=label, usia=usia, shift_pond=shift_pond, shift_date=shift_date)
         else:
             return render_template("index.html", error="Silahkan upload gambar dengan format JPG")
