@@ -59,7 +59,8 @@ def get_first_orde(img_gray):
     # Get Entropy
     Entropy = 0
     for item in url_set:
-        Entropy += ((int(hist[item]) / numAllFrq) * math.log(int(hist[item]) / numAllFrq))
+        Entropy += ((int(hist[item]) / numAllFrq) *
+                    math.log(int(hist[item]) / numAllFrq))
     Entropy = Entropy * (-1)
 
     # Get contrast value
@@ -105,8 +106,9 @@ def second_order(img_gray):
 
     return [asm_val, contrast_val, correlation_val, idm_val, entropy_val]
 
+
 def dfs_tabs(df_list, sheet_list, file_name):
-    writer = pd.ExcelWriter(file_name,engine='xlsxwriter')
+    writer = pd.ExcelWriter(file_name, engine='xlsxwriter')
     for dataframe, sheet in zip(df_list, sheet_list):
-        dataframe.to_excel(writer, sheet_name=sheet, startrow=0 , startcol=0)
+        dataframe.to_excel(writer, sheet_name=sheet, startrow=0, startcol=0)
     writer.save()
