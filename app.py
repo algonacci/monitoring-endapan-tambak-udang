@@ -44,6 +44,15 @@ def prediction():
             df2 = pd.read_csv('static/result/first_order.csv')
             df3 = pd.read_csv('static/result/second_order.csv')
             df = pd.concat([df1, df2, df3], axis=1)
+            df = df.drop(columns=['Max',
+                                  'Variance', 'Standard Deviasi',
+                                  'Skewness', 'Kurtois', 'Entropy', 'Contrast',
+                                  'ASM 0', 'ASM 45', 'ASM 90',
+                                  'ASM 135', 'Contrast 0', 'Contrast 45',
+                                  'Contrast 90', 'Contrast 135', 'Correlation 0',
+                                  'Correlation 45', 'Correlation 90', 'Correlation 135',
+                                  'IDM 0', 'IDM 45', 'IDM 90', 'IDM 135', 'Entropy 0',
+                                  'Entropy 45', 'Entropy 90', 'Entropy 135', 'Kelas'])
             df.insert(0, "Pakan", pakan)
             df.insert(1, "Usia", usia)
             df = pd.DataFrame(minmax_scale(df), columns=df.columns)
