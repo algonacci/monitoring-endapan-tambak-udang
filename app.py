@@ -1,18 +1,20 @@
 import datetime
 import os
-import pickle
-
-import pandas as pd
 from flask import Flask, render_template, request
-from sklearn.preprocessing import minmax_scale
 from werkzeug.utils import secure_filename
+# import module as md
+import numpy as np
+from tensorflow.keras.models import load_model
+from PIL import Image
+import time
+np.set_printoptions(suppress=True)
 
-import module as md
 
 app = Flask(__name__)
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg'])
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
-app.config['MODEL_FILE'] = 'model/knn_model.pkl'
+app.config['MODEL_FILE'] = 'model/keras_model.h5'
+app.config['LABELS_FILE'] = 'model/labels.txt'
 
 
 def allowed_file(filename):
@@ -20,8 +22,9 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 
-with open(app.config['MODEL_FILE'], 'rb') as file:
-    knn_model = pickle.load(file)
+model = load_model(app.config['MODEL_FILE'], compile=False)
+with open(app.config['LABELS_FILE'], 'r') as file:
+    labels = file.read().splitlines()
 
 
 @app.route("/")
@@ -33,53 +36,53 @@ def index():
 def prediction():
     if request.method == "POST":
         image = request.files["image"]
-        pakan = request.form["pakan"]
+        # pakan = request.form["pakan"]
         usia = int(request.form["usia"])
         if image and allowed_file(image.filename):
             filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            md.image_processing(image_path)
-            df1 = pd.read_csv('static/result/rgb.csv')
-            df2 = pd.read_csv('static/result/first_order.csv')
-            df3 = pd.read_csv('static/result/second_order.csv')
-            df = pd.concat([df1, df2, df3], axis=1)
-            df = df.drop(columns=['Max',
-                                  'Variance', 'Standard Deviasi',
-                                  'Skewness', 'Kurtois', 'Entropy', 'Contrast',
-                                  'ASM 0', 'ASM 45', 'ASM 90',
-                                  'ASM 135', 'Contrast 0', 'Contrast 45',
-                                  'Contrast 90', 'Contrast 135', 'Correlation 0',
-                                  'Correlation 45', 'Correlation 90', 'Correlation 135',
-                                  'IDM 0', 'IDM 45', 'IDM 90', 'IDM 135', 'Entropy 0',
-                                  'Entropy 45', 'Entropy 90', 'Entropy 135', 'Kelas'])
-            df.insert(0, "Pakan", pakan)
-            df.insert(1, "Usia", usia)
-            df = pd.DataFrame(minmax_scale(df), columns=df.columns)
-            label = knn_model.predict(df)
-            label_map = {
-                1: "Tidak ada endapan",
-                2: "Sedikit endapan",
-                3: "Banyak endapan"
-            }
-            label_text = label_map.get(label[0], "unknown")
+            # processed_image = md.image_processing(image_path)
+            img = Image.open(image_path).convert("RGB")
+            img = img.resize((224, 224))
+            img_array = np.asarray(img)
+            img_array = np.expand_dims(img_array, axis=0)
+            normalized_image_array = (img_array.astype(np.float32) / 127.5) - 1
+            data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+            data[0] = normalized_image_array
+
+            start_time = time.time()
+            predictions = model.predict(data)
+            index = np.argmax(predictions)
+            class_name = labels[index]
+            confidence_score = predictions[0][index]
+            print("===================================")
+            print("Class:", class_name[2:], end="")
+            print("\n")
+            print("Confidence Score:", confidence_score)
+            print("===================================")
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print("Elapsed Time:", elapsed_time, "seconds")
+
             # Calculate shift_pond based on usia and predicted class
             if usia <= 30:
                 shift_pond = 30 - usia
                 shift_date = datetime.date.today() + datetime.timedelta(days=shift_pond)
-            elif label == 1:
+            elif np.argmax(predictions) == 0:
                 shift_pond = 4
                 shift_date = datetime.date.today() + datetime.timedelta(days=shift_pond)
-            elif label == 2:
+            elif np.argmax(predictions) == 1:
                 shift_pond = 3
                 shift_date = datetime.date.today() + datetime.timedelta(days=shift_pond)
-            elif label == 3:
+            elif np.argmax(predictions) == 2:
                 shift_pond = 2
                 shift_date = datetime.date.today() + datetime.timedelta(days=shift_pond)
             else:
                 shift_pond = None
                 shift_date = None
-            return render_template("prediction.html", result=label_text, label=label, shift_pond=shift_pond, shift_date=shift_date)
+
+            return render_template("prediction.html", result=class_name, probabilities=confidence_score, shift_pond=shift_pond, shift_date=shift_date)
         else:
             return render_template("prediction.html", error="Silahkan upload gambar dengan format JPG")
     else:
